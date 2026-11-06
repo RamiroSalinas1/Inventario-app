@@ -40,3 +40,31 @@ it("ejercita aprovisionamiento idempotente, mínimos privilegios y el escenario 
     await db.close();
   }
 }, 30000);
+
+it("aprovisiona como propietario de migraciones sin SUPERUSER ni CREATEROLE", async () => {
+  const db = new PGlite();
+  try {
+    await db.exec(`
+      CREATE ROLE inventory_migrator LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEROLE;
+      CREATE ROLE inventory_app LOGIN NOSUPERUSER NOBYPASSRLS;
+      GRANT inventory_app TO inventory_migrator;
+      ALTER SCHEMA public OWNER TO inventory_migrator;
+    `);
+    const name = (
+      await db.query<{ name: string }>("SELECT current_database() AS name")
+    ).rows[0].name;
+    await db.exec(
+      `GRANT CREATE ON DATABASE "${name.replaceAll('"', '""')}" TO inventory_migrator; SET ROLE inventory_migrator`,
+    );
+    await migrate(drizzle(db), { migrationsFolder: "./drizzle" });
+    const sql = readFileSync("scripts/db/roles.sql", "utf8");
+    await db.exec(sql);
+    await db.exec(sql);
+    await db.exec("BEGIN");
+    expect(await isolationScenario(db)).toBeGreaterThanOrEqual(15);
+    await db.exec("ROLLBACK; SET ROLE inventory_app");
+    await verifyRole(db);
+  } finally {
+    await db.close();
+  }
+}, 30000);

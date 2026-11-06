@@ -15,7 +15,7 @@ export const protectedTables = [
 ];
 export async function verifyRole(client: Queryable) {
   const { rows } =
-    await client.query(`select r.rolname, (r.rolsuper or r.rolbypassrls or r.rolcreatedb or r.rolcreaterole or exists(select 1 from pg_auth_members where member=r.oid) or exists (
+    await client.query(`select r.rolname, (r.rolsuper or r.rolbypassrls or r.rolreplication or r.rolcreatedb or r.rolcreaterole or exists(select 1 from pg_auth_members where member=r.oid) or exists (
     select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
     where n.nspname='public' and pg_has_role(r.oid,c.relowner,'USAGE')
   ) or has_schema_privilege(current_user,'public','CREATE') or has_database_privilege(current_user,current_database(),'CREATE')) as unsafe

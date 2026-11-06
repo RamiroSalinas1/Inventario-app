@@ -36,3 +36,9 @@ Probar login/logout, caducidad y revocación, correo verificado, acceso negativo
 La creación de un movimiento aún no actualiza el balance automáticamente. El servicio de stock pendiente deberá realizar ambas escrituras y la auditoría en una única transacción con bloqueo o actualización condicional. No exponer acceso directo a esas tablas. Correcciones mediante movimientos compensatorios; inventarios y referencias históricas se archivan en una futura política, no mediante borrado en cascada.
 
 El almacenamiento de fotos deberá ser privado y validar la pertenencia del producto al generar URLs firmadas. El prefijo de objeto en el esquema no es una política del proveedor de almacenamiento.
+
+## Herramientas de integración Neon
+
+Consultar [docs/neon.md](neon.md). El aprovisionamiento repetible está en `scripts/db/roles.sql`; exige un LOGIN dedicado `inventory_app` existente, sin ownership ni membresías. Los permisos actuales son exclusivamente lectura de tablas de tenant; auth y escrituras siguen cerrados. El guard también rechaza membresías de roles y permisos CREATE/CREATEROLE/CREATEDB, además de ownership y bypass RLS. El verificador operacional comprueba grants efectivos y RLS en todas las tablas esperadas. Nuevas tablas requieren grants explícitos revisados.
+
+`test:integration` sólo puede ejecutarse explícitamente contra desarrollo. Las fixtures y el historial se crean dentro de una transacción revertida; los tests de pool usan conexiones con el LOGIN de aplicación sin persistir datos. Sigue pendiente ejecutarlo en Neon. El contexto SQL no autentica: la membresía inactiva debe ser rechazada por el guard antes de conceder contexto de inventario; no se habilitan rutas Better Auth.

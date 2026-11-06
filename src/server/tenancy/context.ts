@@ -28,7 +28,11 @@ export async function withInventoryContext<T>(
   return getDb().transaction(async (tx) => {
     // Neon owner credentials bypass RLS. Fail closed if used as application credentials.
     const role = await tx.execute<{ unsafe: boolean }>(sql`
-      select (r.rolsuper or r.rolbypassrls or exists (
+      select (r.rolsuper or r.rolbypassrls or r.rolcreatedb or r.rolcreaterole
+        or has_schema_privilege(current_user, 'public', 'CREATE')
+        or has_database_privilege(current_user, current_database(), 'CREATE')
+        or exists (select 1 from pg_auth_members where member = r.oid)
+        or exists (
         select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname = 'public' and c.relrowsecurity and pg_has_role(r.oid, c.relowner, 'USAGE')
       )) as unsafe from pg_roles r where r.rolname = current_user

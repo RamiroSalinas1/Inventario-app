@@ -33,3 +33,9 @@
 - Mantener pruebas de aislamiento y restricciones; agregar pruebas de comportamiento al introducir servicios o permisos. Cubrir móvil, teclado y estados vacíos.
 - No afirmar verificación de conexión o autenticación real si sólo se probó la demo.
 - Trabajar en una rama y abrir PR con alcance, verificaciones y limitaciones. No fusionar ni promover a producción sin autorización.
+
+## Operaciones Neon
+
+- Seguir `docs/neon.md`. `db:migrate:dev`, `db:roles:dev` y `test:integration` requieren autorización de la rama concreta, `DB_ENV=development`, `DB_DEV_HOST` directo y `--confirm-development`. Preparar los comandos no autoriza ejecutarlos remotamente.
+- `DATABASE_URL`: LOGIN `inventory_app` pooled, TLS verify-full. `DATABASE_URL_UNPOOLED`: migrador directo separado. No poner credenciales del migrador en Vercel runtime ni ejecutar herramientas contra producción.
+- El rol de app sólo tiene SELECT; ampliar grants al implementar servicios en su propia tarea. No habilitar auth ni entregar contexto SQL al cliente.

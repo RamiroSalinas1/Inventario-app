@@ -15,7 +15,11 @@
     "db:check": "drizzle-kit check",
     "check": "npm run lint && npm run typecheck && npm test && npm run db:check",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:verify": "node --experimental-strip-types scripts/db/command.ts check",
+    "db:migrate:dev": "node --experimental-strip-types scripts/db/command.ts migrate",
+    "db:roles:dev": "node --experimental-strip-types scripts/db/command.ts roles",
+    "test:integration": "node --experimental-strip-types scripts/db/integration.ts"
   },
   "dependencies": {
     "@vercel/functions": "^3.11.0",

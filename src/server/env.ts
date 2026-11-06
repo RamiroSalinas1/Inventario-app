@@ -1,13 +1,9 @@
 import "server-only";
 import { z } from "zod";
+import { databaseUrlSchema } from "./db/connection-config";
 
 const databaseEnv = z.object({
-  DATABASE_URL: z
-    .url()
-    .refine(
-      (v) => v.startsWith("postgresql://") || v.startsWith("postgres://"),
-      "Debe ser una URL de PostgreSQL",
-    ),
+  DATABASE_URL: databaseUrlSchema,
 });
 const authEnv = z.object({
   BETTER_AUTH_SECRET: z.string().min(32),

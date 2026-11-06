@@ -82,7 +82,7 @@ npm test             # Aplica SQL sólo a PostgreSQL embebido en memoria
 
 Se incluyen `0000_initial_multiempresa.sql` y `0001_immutable_ledger.sql`. La primera define tablas, índices, restricciones y RLS; la segunda protege auditoría y movimientos contra UPDATE/DELETE. Drizzle gestiona el journal y los snapshots.
 
-No hay scripts `db:push`, `db:migrate` o `db:seed`; no se ejecuta SQL en instalación, CI o build. Cuando se autorice una base de desarrollo, crear o elegir una rama aislada en Neon, revisar ambas migraciones y usar una conexión directa y un rol de migración. Crear aparte el rol de ejecución descrito en `docs/security.md`. No apuntar herramientas de esquema a producción. Probar concurrencia y transacciones de stock antes de implementar escrituras.
+No hay scripts `db:push` ni `db:seed`; las migraciones de desarrollo se ejecutan sólo mediante `db:migrate:dev` con confirmación explícita (ver la guía Neon). No se ejecuta SQL en instalación, CI o build. Cuando se autorice una base de desarrollo, crear o elegir una rama aislada en Neon, revisar ambas migraciones y usar una conexión directa y un rol de migración. Crear aparte el rol de ejecución descrito en `docs/security.md`. No apuntar herramientas de esquema a producción. Probar concurrencia y transacciones de stock antes de implementar escrituras.
 
 ## Verificaciones
 
@@ -111,3 +111,9 @@ La demo no necesita variables privadas en Vercel. Al conectar servicios reales, 
 6. Agregar carga privada de fotografías y URLs firmadas con permisos; dashboard real e informes con consultas acotadas por tenant.
 
 Convenciones de colaboración en [AGENTS.md](AGENTS.md).
+
+## Integración Neon y herramientas operativas
+
+La conexión usa un pool lazy con TLS `sslmode=verify-full`; la demo y el build no requieren credenciales. Se agregaron comandos explícitos `db:verify`, `db:migrate:dev`, `db:roles:dev` y `test:integration`. Migraciones, permisos y pruebas remotas requieren una rama vacía de desarrollo, roles separados y confirmación; no se ejecutan en build, instalación, CI o deploy.
+
+Seguir [la guía Neon](docs/neon.md) para crear la rama, aprovisionar permisos mínimos, configurar Vercel por entorno y ejecutar las verificaciones. Se conservan las dos migraciones existentes. **No se verificó una conexión real a Neon**: faltan la rama autorizada, acceso TCP y credenciales seguras. Las comprobaciones nuevas se ejecutan localmente en PGlite; autenticación y CRUD siguen fuera de alcance.

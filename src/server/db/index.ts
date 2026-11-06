@@ -4,14 +4,10 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { getDatabaseEnv } from "@/server/env";
 import * as schema from "./schema";
+import { poolOptions } from "./connection-config";
 
 function createDatabase() {
-  const pool = new Pool({
-    connectionString: getDatabaseEnv().DATABASE_URL,
-    max: 5,
-    idleTimeoutMillis: 30_000,
-    connectionTimeoutMillis: 10_000,
-  });
+  const pool = new Pool(poolOptions(getDatabaseEnv().DATABASE_URL));
   if (process.env.VERCEL) attachDatabasePool(pool);
   return drizzle(pool, { schema });
 }
